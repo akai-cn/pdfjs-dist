@@ -6004,6 +6004,7 @@ function getDocument(src) {
   }
 
   params.rangeChunkSize = params.rangeChunkSize || DEFAULT_RANGE_CHUNK_SIZE;
+  params.rangeForceEnable = params.rangeForceEnable === true;
   params.CMapReaderFactory = params.CMapReaderFactory || DefaultCMapReaderFactory;
   params.StandardFontDataFactory = params.StandardFontDataFactory || DefaultStandardFontDataFactory;
   params.ignoreErrors = params.stopAtErrors !== true;
@@ -6089,6 +6090,7 @@ function getDocument(src) {
           httpHeaders: params.httpHeaders,
           withCredentials: params.withCredentials,
           rangeChunkSize: params.rangeChunkSize,
+          rangeForceEnable: params.rangeForceEnable,
           disableRange: params.disableRange,
           disableStream: params.disableStream
         });
@@ -6150,6 +6152,7 @@ function _fetchDocument2() {
                 password: source.password,
                 disableAutoFetch: source.disableAutoFetch,
                 rangeChunkSize: source.rangeChunkSize,
+                rangeForceEnable: source.rangeForceEnable,
                 length: source.length
               },
               maxImageSize: source.maxImageSize,
@@ -22708,6 +22711,7 @@ var BaseFullReader = /*#__PURE__*/function () {
     this._filename = null;
     this._disableRange = source.disableRange || false;
     this._rangeChunkSize = source.rangeChunkSize;
+    this._rangeForceEnable = source.rangeForceEnable;
 
     if (!this._rangeChunkSize && !this._disableRange) {
       this._disableRange = true;
@@ -23050,6 +23054,7 @@ var PDFNodeStreamFullReader = /*#__PURE__*/function (_BaseFullReader) {
         getResponseHeader: getResponseHeader,
         isHttp: stream.isHttp,
         rangeChunkSize: _this3._rangeChunkSize,
+        rangeForceEnable: _this3._rangeForceEnable,
         disableRange: _this3._disableRange
       }),
           allowRangeRequests = _validateRangeRequest.allowRangeRequests,
@@ -23232,6 +23237,7 @@ function validateRangeRequestCapabilities(_ref) {
   var getResponseHeader = _ref.getResponseHeader,
       isHttp = _ref.isHttp,
       rangeChunkSize = _ref.rangeChunkSize,
+      rangeForceEnable = _ref.rangeForceEnable,
       disableRange = _ref.disableRange;
   (0, _util.assert)(rangeChunkSize > 0, "Range chunk size must be larger than zero");
   var returnValues = {
@@ -23254,7 +23260,7 @@ function validateRangeRequestCapabilities(_ref) {
     return returnValues;
   }
 
-  if (getResponseHeader("Accept-Ranges") !== "bytes") {
+  if (getResponseHeader("Accept-Ranges") !== "bytes" && !rangeForceEnable) {
     return returnValues;
   }
 
@@ -23746,6 +23752,7 @@ var PDFNetworkStream = /*#__PURE__*/function () {
       withCredentials: source.withCredentials
     });
     this._rangeChunkSize = source.rangeChunkSize;
+    this._rangeForceEnable = source.rangeForceEnable,
     this._fullRequestReader = null;
     this._rangeRequestReaders = [];
   }
@@ -23821,6 +23828,7 @@ var PDFNetworkStreamFullRequestReader = /*#__PURE__*/function () {
     this._disableRange = source.disableRange || false;
     this._contentLength = source.length;
     this._rangeChunkSize = source.rangeChunkSize;
+    this._rangeForceEnable = source.rangeForceEnable;
 
     if (!this._rangeChunkSize && !this._disableRange) {
       this._disableRange = true;
@@ -23851,6 +23859,7 @@ var PDFNetworkStreamFullRequestReader = /*#__PURE__*/function () {
         getResponseHeader: getResponseHeader,
         isHttp: this._manager.isHttp,
         rangeChunkSize: this._rangeChunkSize,
+        rangeForceEnable: this._rangeForceEnable,
         disableRange: this._disableRange
       }),
           allowRangeRequests = _validateRangeRequest.allowRangeRequests,
@@ -24415,6 +24424,7 @@ var PDFFetchStreamReader = /*#__PURE__*/function () {
     this._headersCapability = (0, _util.createPromiseCapability)();
     this._disableRange = source.disableRange || false;
     this._rangeChunkSize = source.rangeChunkSize;
+    this._rangeForceEnable = source.rangeForceEnable;
 
     if (!this._rangeChunkSize && !this._disableRange) {
       this._disableRange = true;
@@ -24445,7 +24455,8 @@ var PDFFetchStreamReader = /*#__PURE__*/function () {
         getResponseHeader: getResponseHeader,
         isHttp: _this._stream.isHttp,
         rangeChunkSize: _this._rangeChunkSize,
-        disableRange: _this._disableRange
+        disableRange: _this._disableRange,
+        rangeForceEnable: _this._rangeForceEnable,
       }),
           allowRangeRequests = _validateRangeRequest.allowRangeRequests,
           suggestedLength = _validateRangeRequest.suggestedLength;
@@ -24686,7 +24697,7 @@ var PDFFetchStreamRangeReader = /*#__PURE__*/function () {
 /************************************************************************/
 /******/ 	// The module cache
 /******/ 	var __webpack_module_cache__ = {};
-/******/ 	
+/******/
 /******/ 	// The require function
 /******/ 	function __w_pdfjs_require__(moduleId) {
 /******/ 		// Check if module is in cache
@@ -24700,17 +24711,17 @@ var PDFFetchStreamRangeReader = /*#__PURE__*/function () {
 /******/ 			loaded: false,
 /******/ 			exports: {}
 /******/ 		};
-/******/ 	
+/******/
 /******/ 		// Execute the module function
 /******/ 		__webpack_modules__[moduleId](module, module.exports, __w_pdfjs_require__);
-/******/ 	
+/******/
 /******/ 		// Flag the module as loaded
 /******/ 		module.loaded = true;
-/******/ 	
+/******/
 /******/ 		// Return the exports of the module
 /******/ 		return module.exports;
 /******/ 	}
-/******/ 	
+/******/
 /************************************************************************/
 /******/ 	/* webpack/runtime/node module decorator */
 /******/ 	(() => {
@@ -24720,7 +24731,7 @@ var PDFFetchStreamRangeReader = /*#__PURE__*/function () {
 /******/ 			return module;
 /******/ 		};
 /******/ 	})();
-/******/ 	
+/******/
 /************************************************************************/
 var __webpack_exports__ = {};
 // This entry need to be wrapped in an IIFE because it need to be in strict mode.
